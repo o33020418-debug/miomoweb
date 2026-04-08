@@ -4884,3 +4884,97 @@ if (weeklyEmpty) weeklyEmpty.style.display = savedCount === 0 ? 'flex' : 'none';
   window.makeStory = makeMonthlyStory;
 
 })();
+
+
+
+/* =========================================
+   MIOMO Mobile Audio Support (ADD ONLY)
+   手機 / 平板 音檔上傳與分析支援
+  
+========================================= */
+
+(function () {
+
+  const fileInput = document.getElementById("fileInput");
+  const analyzeBtn = document.getElementById("analyzeBtn");
+
+  if (!fileInput || !analyzeBtn) return;
+
+  let mobileAudioBuffer = null;
+  let audioContext = null;
+
+  function getAudioContext() {
+    if (!audioContext) {
+      audioContext = new (window.AudioContext || window.webkitAudioContext)();
+    }
+    return audioContext;
+  }
+
+ 
+  function unlockAudioContext() {
+    const ctx = getAudioContext();
+
+    if (ctx.state === "suspended") {
+      ctx.resume();
+    }
+  }
+
+  document.addEventListener("touchstart", unlockAudioContext, { once: true });
+  document.addEventListener("click", unlockAudioContext, { once: true });
+
+  
+  fileInput.addEventListener("change", function (e) {
+
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const ctx = getAudioContext();
+    const reader = new FileReader();
+
+    reader.onload = function (event) {
+
+      const arrayBuffer = event.target.result;
+
+      ctx.decodeAudioData(arrayBuffer)
+        .then(buffer => {
+          mobileAudioBuffer = buffer;
+
+          console.log("✅ Mobile 音檔解碼成功");
+
+       
+          const log = document.getElementById("log");
+          if (log) log.textContent = "音檔已載入（手機模式）";
+        })
+        .catch(err => {
+          console.error("❌ 音檔解碼失敗", err);
+        });
+    };
+
+    reader.readAsArrayBuffer(file);
+  });
+
+  
+  analyzeBtn.addEventListener("click", function () {
+
+  
+    if (!mobileAudioBuffer) return;
+
+    console.log("📱 使用 Mobile AudioBuffer 分析");
+
+    try {
+     
+      if (typeof window.analyzeAudio === "function") {
+        window.analyzeAudio(mobileAudioBuffer);
+      }
+
+    
+      else {
+        console.warn("⚠️ 找不到 analyzeAudio()，請確認原本分析函式名稱");
+      }
+
+    } catch (err) {
+      console.error("分析錯誤:", err);
+    }
+  });
+
+})();
