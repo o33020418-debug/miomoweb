@@ -829,9 +829,15 @@ for (let i = 0; i < Math.min(segs.length, expectedSegments); i++) {
     i
   );
 
+  const enhancedResult = enhanceVoiceDifference(
+  stableResult,
+  seg,
+  sr
+);
+
   stableResult.env = makeEnvelope(seg, 160);
 
-  results.push(stableResult);
+  results.push(enhancedResult);
 }
 
 // 去除完全重複
@@ -5018,5 +5024,87 @@ if (weeklyEmpty) weeklyEmpty.style.display = savedCount === 0 ? 'flex' : 'none';
   });
 
 })();
+
+
+/* =========================
+   Voice Fingerprint Enhancer (ADD ONLY)
+   目的：
+   1. 相同錄音固定結果
+   2. 相似錄音也能放大差異
+   3. 不使用亂數
+========================= */
+
+function calcVoiceFingerprint(seg, sr) {
+  const len = seg.length;
+  const step = Math.max(1, Math.floor(len / 300));
+
+  let energy = 0;
+  let zeroCross = 0;
+  let variance = 0;
+  let peak = 0;
+
+  let prev = seg[0] || 0;
+  let mean = 0;
+  let count = 0;
+
+  for (let i = 0; i < len; i += step) {
+    const v = seg[i];
+
+    mean += v;
+    energy += Math.abs(v);
+
+    if (Math.sign(v) !== Math.sign(prev)) zeroCross++;
+
+    if (Math.abs(v) > peak) peak = Math.abs(v);
+
+    prev = v;
+    count++;
+  }
+
+  mean /= count;
+
+  for (let i = 0; i < len; i += step) {
+    variance += Math.pow(seg[i] - mean, 2);
+  }
+
+  variance /= count;
+
+  return {
+    energy,
+    zeroCross,
+    variance,
+    peak,
+    fingerprintScore:
+      energy * 0.35 +
+      zeroCross * 0.25 +
+      variance * 0.25 +
+      peak * 0.15
+  };
+}
+
+function enhanceVoiceDifference(result, seg, sr) {
+  const fp = calcVoiceFingerprint(seg, sr);
+
+  const enhanced = { ...result };
+
+  // 放大 level 差異（非亂數）
+  const diffFactor = Math.floor(fp.fingerprintScore % 3);
+
+  enhanced.level = Math.max(
+    1,
+    Math.min(5, result.level + diffFactor - 1)
+  );
+
+  // 增加 shapeBias 讓圖形更有差異
+  enhanced.shapeBias = {
+    stretch: 1 + (fp.energy % 0.3),
+    twist: (fp.zeroCross % 7) * 0.08,
+    density: 1 + (fp.variance % 0.2)
+  };
+
+  enhanced.voiceFingerprint = fp;
+
+  return enhanced;
+}
 
 
