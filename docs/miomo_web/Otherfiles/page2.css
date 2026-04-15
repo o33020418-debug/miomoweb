@@ -1964,106 +1964,96 @@ button:active, .custom-file-upload:active{
 }
 
 
-/* =========================
-   Responsive GRID（重寫）
-   保持桌機感 + 自動排版
-========================= */
 
-/* 🔥 核心：改 container 為 grid */
-@media (max-width: 1200px){
 
-  .container{
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 20px;
-    padding-left: 60px;
-    padding-right: 60px;
-  }
+/* ================================
+MIOMO Mobile Layout Patch
+
+================================ */
+
+@media (max-width:1200px){
+
+.container{
+flex-direction:column;
+padding-left:40px;
+padding-right:40px;
+}
+
+.left-panel,
+.right-panel{
+width:100%;
+}
+
+.unity-image{
+height:auto;
+min-height:320px;
+}
 
 }
 
-/* ===== 平板（≤1024px） ===== */
-@media (max-width: 1024px){
+@media (max-width:768px){
 
-  .container{
-    display: grid;
-    grid-template-columns: 1fr; /* 單欄但維持卡片感 */
-    gap: 20px;
-    padding: 40px;
-  }
+header{
+padding:15px 20px;
+}
 
-  /* 🔥 讓右側變成 grid（關鍵） */
-  .right-panel{
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 20px;
-  }
+nav{
+gap:20px;
+}
 
-  /* 讓 dotbar 滿版 */
-  #dotbarArea{
-    grid-column: span 2;
-  }
+nav a{
+font-size:0.95rem;
+}
+
+.container{
+padding-left:20px;
+padding-right:20px;
+}
+
+.upload-title{
+font-size:1.5rem;
+}
+
+.analysis-grid{
+grid-template-columns:1fr;
+}
+
+.unity-image{
+min-height:260px;
+}
 
 }
 
-/* ===== 手機（≤768px） ===== */
-@media (max-width: 768px){
+@media (max-width:480px){
 
-  body{
-    cursor: auto;
-  }
-
-  header{
-    padding: 12px 20px;
-  }
-
-  .container{
-    padding: 20px;
-  }
-
-  /* 🔥 手機改單欄但保持卡片節奏 */
-  .right-panel{
-    grid-template-columns: 1fr;
-  }
-
-  #dotbarArea{
-    grid-column: span 1;
-  }
-
-  .unity-image{
-    height: auto;
-    aspect-ratio: 1 / 1; /* 🔥 保持正方形視覺 */
-  }
-
-  nav{
-    gap: 14px;
-  }
-
-  nav a{
-    font-size: 0.95rem;
-  }
-
+.logo img{
+height:28px;
 }
 
-/* ===== 小手機（≤480px） ===== */
-@media (max-width: 480px){
+nav{
+gap:12px;
+}
 
-  header{
-    flex-direction: column;
-    gap: 10px;
-  }
+nav a{
+font-size:0.8rem;
+}
 
-  nav{
-    flex-wrap: wrap;
-    justify-content: center;
-  }
+.upload-dropzone{
+padding:25px;
+}
 
-  .upload-title{
-    font-size: 1.3rem;
-  }
+.buttons button,
+.custom-file-upload{
+width:100%;
+margin:8px 0;
+}
 
-  .analysis-card{
-    padding: 14px;
-  }
+.week-grid{
+grid-template-columns:1fr;
+}
+
+.day-img{
+height:180px;
+}
 
 }
